@@ -1,0 +1,19 @@
+venv/
+venv311/
+__pycache__/
+*.pyc
+
+# large artefacts
+outputs/checkpoints/
+*.npz
+*.bin
+*.pt
+
+# dataset — link in README instead
+data/dataset.json
+data/post_id_divisions.json
+
+# superseded
+outputs/predictions_old/
+outputs/probe_randomsplit/
+src/modernbert_requirements.txt

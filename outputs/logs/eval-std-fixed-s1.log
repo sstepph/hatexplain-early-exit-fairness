@@ -1,0 +1,177 @@
+Some weights of the model checkpoint at ../outputs/checkpoints/hatexplain-bert-base-cased-s1 were not used when initializing BertModel: ['classifier.weight', 'classifier.bias']
+- This IS expected if you are initializing BertModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing BertModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Device: cuda
+
+Loading fine-tuned BERT...
+
+Loading HateXplain data...
+Train: 16118 | Test: 4030
+
+Extracting training embeddings...
+  Processed 32/16118 posts
+  Processed 352/16118 posts
+  Processed 672/16118 posts
+  Processed 992/16118 posts
+  Processed 1312/16118 posts
+  Processed 1632/16118 posts
+  Processed 1952/16118 posts
+  Processed 2272/16118 posts
+  Processed 2592/16118 posts
+  Processed 2912/16118 posts
+  Processed 3232/16118 posts
+  Processed 3552/16118 posts
+  Processed 3872/16118 posts
+  Processed 4192/16118 posts
+  Processed 4512/16118 posts
+  Processed 4832/16118 posts
+  Processed 5152/16118 posts
+  Processed 5472/16118 posts
+  Processed 5792/16118 posts
+  Processed 6112/16118 posts
+  Processed 6432/16118 posts
+  Processed 6752/16118 posts
+  Processed 7072/16118 posts
+  Processed 7392/16118 posts
+  Processed 7712/16118 posts
+  Processed 8032/16118 posts
+  Processed 8352/16118 posts
+  Processed 8672/16118 posts
+  Processed 8992/16118 posts
+  Processed 9312/16118 posts
+  Processed 9632/16118 posts
+  Processed 9952/16118 posts
+  Processed 10272/16118 posts
+  Processed 10592/16118 posts
+  Processed 10912/16118 posts
+  Processed 11232/16118 posts
+  Processed 11552/16118 posts
+  Processed 11872/16118 posts
+  Processed 12192/16118 posts
+  Processed 12512/16118 posts
+  Processed 12832/16118 posts
+  Processed 13152/16118 posts
+  Processed 13472/16118 posts
+  Processed 13792/16118 posts
+  Processed 14112/16118 posts
+  Processed 14432/16118 posts
+  Processed 14752/16118 posts
+  Processed 15072/16118 posts
+  Processed 15392/16118 posts
+  Processed 15712/16118 posts
+  Processed 16032/16118 posts
+
+Extracting test embeddings...
+  Processed 32/4030 posts
+  Processed 352/4030 posts
+  Processed 672/4030 posts
+  Processed 992/4030 posts
+  Processed 1312/4030 posts
+  Processed 1632/4030 posts
+  Processed 1952/4030 posts
+  Processed 2272/4030 posts
+  Processed 2592/4030 posts
+  Processed 2912/4030 posts
+  Processed 3232/4030 posts
+  Processed 3552/4030 posts
+  Processed 3872/4030 posts
+
+Building prototypes...
+
+=== Baseline (layer 12, no early exit) ===
+  accuracy: 0.7658
+  f1_binary: 0.7915
+  f1_macro: 0.7621
+  auc: 0.8526
+
+=== Baseline per-group ===
+              N    AUC  Recall    FPR
+Group                                
+African     690  0.781   0.874  0.478
+Arab        148  0.780   0.878  0.412
+Asian        88  0.662   0.625  0.290
+Caucasian   132  0.759   0.667  0.169
+Christian    20  0.820   0.625  0.100
+Hispanic     66  0.923   0.929  0.400
+Homosexual  401  0.790   0.769  0.233
+Islam       403  0.812   0.808  0.313
+Jewish      332  0.818   0.903  0.556
+Men          80  0.800   0.595  0.156
+Other       354  0.820   0.779  0.236
+Refugee     198  0.736   0.541  0.180
+Women       327  0.742   0.713  0.264
+none        771  0.745   0.252  0.116
+
+=== Early exit (fixed delta=0.1, min_layer=3) ===
+
+=== Early exit overall results ===
+  accuracy: 0.7658
+  f1_binary: 0.7915
+  f1_macro: 0.7621
+  auc: 0.7904
+
+  Average exit layer : 11.56 / 12
+  Posts exiting early: 36.8%
+
+=== Baseline vs Early exit ===
+  Metric         Baseline   Early exit       Diff
+  ----------------------------------------------
+  accuracy         0.7658       0.7658    +0.0000
+  f1_binary        0.7915       0.7915    +0.0000
+  auc              0.8526       0.7904    -0.0622
+
+=== Exit layer analysis per group ===
+              N  Avg exit layer Early exit %  Hate base rate
+Group                                                       
+African     690           11.38        52.3%           0.833
+Arab        148           11.39        49.3%           0.885
+Asian        88           11.75        23.9%           0.648
+Caucasian   132           11.69        26.5%           0.508
+Christian    20           11.45        40.0%           0.500
+Hispanic     66           11.44        50.0%           0.848
+Homosexual  401           11.74        24.2%           0.701
+Islam       403           11.67        29.3%           0.754
+Jewish      332           11.29        57.5%           0.892
+Men          80           11.76        22.5%           0.200
+Other       354           11.73        24.9%           0.653
+Refugee     198           11.77        20.7%           0.495
+Women       327           11.74        22.9%           0.676
+none        771           11.46        41.5%           0.052
+
+=== Per-group fairness (early exit) ===
+              N    AUC  Recall    FPR
+Group                                
+African     690  0.694   0.874  0.478
+Arab        148  0.746   0.878  0.412
+Asian        88  0.618   0.625  0.290
+Caucasian   132  0.691   0.667  0.169
+Christian    20  0.720   0.625  0.100
+Hispanic     66  0.732   0.929  0.400
+Homosexual  401  0.751   0.769  0.233
+Islam       403  0.763   0.808  0.313
+Jewish      332  0.627   0.903  0.556
+Men          80  0.748   0.595  0.156
+Other       354  0.771   0.779  0.236
+Refugee     198  0.673   0.541  0.180
+Women       327  0.695   0.713  0.264
+none        771  0.671   0.252  0.116
+
+=== Per-group AUC: baseline vs early exit ===
+  Group            Base AUC     EE AUC     Diff   Base FPR     EE FPR     Diff
+  ----------------------------------------------------------------------------
+  African             0.781      0.694   -0.087      0.478      0.478   +0.000
+  Arab                0.780      0.746   -0.034      0.412      0.412   +0.000
+  Asian               0.662      0.618   -0.044       0.29       0.29   +0.000
+  Caucasian           0.759      0.691   -0.068      0.169      0.169   +0.000
+  Christian           0.820      0.720   -0.100        0.1        0.1   +0.000
+  Hispanic            0.923      0.732   -0.191        0.4        0.4   +0.000
+  Homosexual          0.790      0.751   -0.039      0.233      0.233   +0.000
+  Islam               0.812      0.763   -0.049      0.313      0.313   +0.000
+  Jewish              0.818      0.627   -0.191      0.556      0.556   +0.000
+  Men                 0.800      0.748   -0.052      0.156      0.156   +0.000
+  Other               0.820      0.771   -0.049      0.236      0.236   +0.000
+  Refugee             0.736      0.673   -0.063       0.18       0.18   +0.000
+  Women               0.742      0.695   -0.047      0.264      0.264   +0.000
+  none                0.745      0.671   -0.074      0.116      0.116   +0.000
+
+All results saved to ../outputs/predictions/

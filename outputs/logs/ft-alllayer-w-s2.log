@@ -1,0 +1,116 @@
+Some weights of the model checkpoint at bert-base-cased were not used when initializing BertModel: ['cls.seq_relationship.weight', 'cls.predictions.transform.dense.bias', 'cls.predictions.transform.LayerNorm.bias', 'cls.seq_relationship.bias', 'cls.predictions.transform.LayerNorm.weight', 'cls.predictions.decoder.weight', 'cls.predictions.bias', 'cls.predictions.transform.dense.weight']
+- This IS expected if you are initializing BertModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing BertModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Device: cuda
+Model:  bert-base-cased
+Epochs: 3 | Batch: 16 | T: 0.1
+Label scheme: hatespeech vs normal (offensive excluded — Antoine's setting)
+
+Train: 16118 | Test: 4030
+Label distribution (train): {1: 9596, 0: 6522}
+Class weights [not_hate, hate]: [1.235663890838623, 0.8398290872573853]
+
+Computing initial prototypes...
+Prototypes shape: torch.Size([12, 2, 768])
+
+Epoch 1/3 | loss: 0.6461
+
+Epoch 2/3 | loss: 0.5808
+
+Epoch 3/3 | loss: 0.4310
+
+=== Test set — all 12 layers ===
+ layer  accuracy  macro_f1
+     1  0.643672  0.639413
+     2  0.730273  0.722535
+     3  0.755335  0.751095
+     4  0.766005  0.759892
+     5  0.765261  0.760330
+     6  0.767494  0.761574
+     7  0.771216  0.764014
+     8  0.771960  0.763574
+     9  0.765012  0.755347
+    10  0.766005  0.756331
+    11  0.766253  0.758323
+    12  0.769479  0.763760
+
+=== Early exit (threshold=0.1, min_layer=3) ===
+  Accuracy:          0.7640
+  Macro F1:          0.7590
+  Average exit layer:3.57 / 12
+  Posts exiting early: 97.7%
+
+=== Per-group fairness (baseline: layer 12) ===
+              N    AUC  Recall    FPR
+Group                                
+African     715  0.772   0.897  0.449
+Arab        145  0.574   0.834  0.652
+Asian        89  0.691   0.713  0.423
+Caucasian   142  0.750   0.605  0.157
+Disability   19  0.607   0.759  0.857
+Hispanic     49  0.881   0.963  0.125
+Homosexual  390  0.740   0.766  0.275
+Islam       438  0.642   0.831  0.430
+Jewish      327  0.555   0.916  0.605
+Men          63  0.805   0.667  0.140
+Other       361  0.760   0.761  0.269
+Refugee     197  0.720   0.630  0.189
+Women       317  0.715   0.711  0.302
+none        751  0.805   0.312  0.130
+
+=== Per-group fairness (early exit) ===
+              N    AUC  Recall    FPR
+Group                                
+African     715  0.712   0.891  0.407
+Arab        145  0.627   0.826  0.565
+Asian        89  0.595   0.702  0.423
+Caucasian   142  0.745   0.569  0.157
+Disability   19  0.393   0.759  0.857
+Hispanic     49  0.909   0.963  0.125
+Homosexual  390  0.721   0.760  0.266
+Islam       438  0.696   0.821  0.393
+Jewish      327  0.536   0.912  0.605
+Men          63  0.767   0.632  0.140
+Other       361  0.756   0.761  0.269
+Refugee     197  0.710   0.621  0.144
+Women       317  0.725   0.711  0.283
+none        751  0.752   0.303  0.137
+
+=== Exit layer analysis per group ===
+              N  Avg exit layer Early exit %  Hate base rate
+Group                                                       
+African     715            3.43        98.6%           0.835
+Arab        145            3.70        97.9%           0.841
+Asian        89            3.90        96.6%           0.708
+Caucasian   142            3.62        98.6%           0.507
+Disability   19            3.47        94.7%           0.632
+Hispanic     49            3.49        95.9%           0.837
+Homosexual  390            3.75        97.4%           0.721
+Islam       438            3.45        98.6%           0.756
+Jewish      327            3.31        99.1%           0.869
+Men          63            3.78        95.2%           0.317
+Other       361            3.68        95.6%           0.557
+Refugee     197            3.82        97.0%           0.543
+Women       317            4.07        95.3%           0.666
+none        751            3.40        98.3%           0.057
+
+=== Per-group: baseline vs early exit ===
+  Group            Base AUC     EE AUC     Diff   Base FPR     EE FPR     Diff
+  ----------------------------------------------------------------------------
+  African             0.772      0.712   -0.060      0.449      0.407   -0.042
+  Arab                0.574      0.627   +0.053      0.652      0.565   -0.087
+  Asian               0.691      0.595   -0.096      0.423      0.423   +0.000
+  Caucasian           0.750      0.745   -0.005      0.157      0.157   +0.000
+  Disability          0.607      0.393   -0.214      0.857      0.857   +0.000
+  Hispanic            0.881      0.909   +0.028      0.125      0.125   +0.000
+  Homosexual          0.740      0.721   -0.019      0.275      0.266   -0.009
+  Islam               0.642      0.696   +0.054       0.43      0.393   -0.037
+  Jewish              0.555      0.536   -0.019      0.605      0.605   +0.000
+  Men                 0.805      0.767   -0.038       0.14       0.14   +0.000
+  Other               0.760      0.756   -0.004      0.269      0.269   +0.000
+  Refugee             0.720      0.710   -0.010      0.189      0.144   -0.045
+  Women               0.715      0.725   +0.010      0.302      0.283   -0.019
+  none                0.805      0.752   -0.053       0.13      0.137   +0.007
+
+Saved to: ../outputs/checkpoints/hatexplain-alllayer-bert-cased-s2
+Per-group results saved to: ../outputs/predictions

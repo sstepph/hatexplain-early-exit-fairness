@@ -1,0 +1,6 @@
+usage: hate_prototypes_bert.py [-h] [--data_path DATA_PATH]
+                               [--checkpoint_dir CHECKPOINT_DIR]
+                               [--max_len MAX_LEN] [--batch_size BATCH_SIZE]
+                               [--seed SEED] [--percentile PERCENTILE]
+                               [--sweep] [--out_dir OUT_DIR]
+hate_prototypes_bert.py: error: unrecognized arguments: --tag std

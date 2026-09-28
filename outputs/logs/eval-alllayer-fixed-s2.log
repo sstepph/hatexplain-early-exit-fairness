@@ -1,0 +1,174 @@
+Device: cuda
+
+Loading fine-tuned BERT...
+
+Loading HateXplain data...
+Train: 16118 | Test: 4030
+
+Extracting training embeddings...
+  Processed 32/16118 posts
+  Processed 352/16118 posts
+  Processed 672/16118 posts
+  Processed 992/16118 posts
+  Processed 1312/16118 posts
+  Processed 1632/16118 posts
+  Processed 1952/16118 posts
+  Processed 2272/16118 posts
+  Processed 2592/16118 posts
+  Processed 2912/16118 posts
+  Processed 3232/16118 posts
+  Processed 3552/16118 posts
+  Processed 3872/16118 posts
+  Processed 4192/16118 posts
+  Processed 4512/16118 posts
+  Processed 4832/16118 posts
+  Processed 5152/16118 posts
+  Processed 5472/16118 posts
+  Processed 5792/16118 posts
+  Processed 6112/16118 posts
+  Processed 6432/16118 posts
+  Processed 6752/16118 posts
+  Processed 7072/16118 posts
+  Processed 7392/16118 posts
+  Processed 7712/16118 posts
+  Processed 8032/16118 posts
+  Processed 8352/16118 posts
+  Processed 8672/16118 posts
+  Processed 8992/16118 posts
+  Processed 9312/16118 posts
+  Processed 9632/16118 posts
+  Processed 9952/16118 posts
+  Processed 10272/16118 posts
+  Processed 10592/16118 posts
+  Processed 10912/16118 posts
+  Processed 11232/16118 posts
+  Processed 11552/16118 posts
+  Processed 11872/16118 posts
+  Processed 12192/16118 posts
+  Processed 12512/16118 posts
+  Processed 12832/16118 posts
+  Processed 13152/16118 posts
+  Processed 13472/16118 posts
+  Processed 13792/16118 posts
+  Processed 14112/16118 posts
+  Processed 14432/16118 posts
+  Processed 14752/16118 posts
+  Processed 15072/16118 posts
+  Processed 15392/16118 posts
+  Processed 15712/16118 posts
+  Processed 16032/16118 posts
+
+Extracting test embeddings...
+  Processed 32/4030 posts
+  Processed 352/4030 posts
+  Processed 672/4030 posts
+  Processed 992/4030 posts
+  Processed 1312/4030 posts
+  Processed 1632/4030 posts
+  Processed 1952/4030 posts
+  Processed 2272/4030 posts
+  Processed 2592/4030 posts
+  Processed 2912/4030 posts
+  Processed 3232/4030 posts
+  Processed 3552/4030 posts
+  Processed 3872/4030 posts
+
+Building prototypes...
+
+=== Baseline (layer 12, no early exit) ===
+  accuracy: 0.7695
+  f1_binary: 0.8051
+  f1_macro: 0.7615
+  auc: 0.8454
+
+=== Baseline per-group ===
+              N    AUC  Recall    FPR
+Group                                
+African     715  0.830   0.906  0.475
+Arab        145  0.698   0.843  0.478
+Asian        89  0.721   0.754  0.500
+Caucasian   142  0.776   0.672  0.186
+Disability   19  0.619   0.759  0.857
+Hispanic     49  0.960   0.964  0.250
+Homosexual  390  0.759   0.772  0.358
+Islam       438  0.769   0.818  0.495
+Jewish      327  0.815   0.918  0.605
+Men          63  0.791   0.683  0.163
+Other       361  0.777   0.748  0.375
+Refugee     197  0.737   0.656  0.244
+Women       317  0.750   0.732  0.311
+none        751  0.821   0.312  0.145
+
+=== Early exit (fixed delta=0.1, min_layer=3) ===
+
+=== Early exit overall results ===
+  accuracy: 0.7593
+  f1_binary: 0.7934
+  f1_macro: 0.7525
+  auc: 0.8364
+
+  Average exit layer : 3.61 / 12
+  Posts exiting early: 99.2%
+
+=== Baseline vs Early exit ===
+  Metric         Baseline   Early exit       Diff
+  ----------------------------------------------
+  accuracy         0.7695       0.7593    -0.0102
+  f1_binary        0.8051       0.7934    -0.0117
+  auc              0.8454       0.8364    -0.0090
+
+=== Exit layer analysis per group ===
+              N  Avg exit layer Early exit %  Hate base rate
+Group                                                       
+African     715            3.42        99.3%           0.835
+Arab        145            3.49       100.0%           0.841
+Asian        89            3.65        98.9%           0.708
+Caucasian   142            3.64        98.6%           0.507
+Disability   19            3.00       100.0%           0.632
+Hispanic     49            3.16       100.0%           0.837
+Homosexual  390            3.77        98.5%           0.721
+Islam       438            3.55        98.9%           0.756
+Jewish      327            3.49        99.1%           0.869
+Men          63            3.90       100.0%           0.317
+Other       361            3.67        98.9%           0.557
+Refugee     197            4.07        99.5%           0.543
+Women       317            3.98        98.4%           0.666
+none        751            3.50        99.7%           0.057
+
+=== Per-group fairness (early exit) ===
+              N    AUC  Recall    FPR
+Group                                
+African     715  0.801   0.892  0.551
+Arab        145  0.732   0.838  0.478
+Asian        89  0.691   0.735  0.423
+Caucasian   142  0.781   0.593  0.157
+Disability   19  0.571   0.733  1.000
+Hispanic     49  0.982   0.951  0.250
+Homosexual  390  0.764   0.777  0.312
+Islam       438  0.752   0.814  0.486
+Jewish      327  0.811   0.912  0.558
+Men          63  0.809   0.718  0.116
+Other       361  0.787   0.743  0.350
+Refugee     197  0.719   0.596  0.200
+Women       317  0.746   0.703  0.274
+none        751  0.810   0.312  0.145
+
+=== Per-group AUC: baseline vs early exit ===
+  Group            Base AUC     EE AUC     Diff   Base FPR     EE FPR     Diff
+  ----------------------------------------------------------------------------
+  African             0.830      0.801   -0.029      0.475      0.551   +0.076
+  Arab                0.698      0.732   +0.034      0.478      0.478   +0.000
+  Asian               0.721      0.691   -0.030        0.5      0.423   -0.077
+  Caucasian           0.776      0.781   +0.005      0.186      0.157   -0.029
+  Disability          0.619      0.571   -0.048      0.857        1.0   +0.143
+  Hispanic            0.960      0.982   +0.022       0.25       0.25   +0.000
+  Homosexual          0.759      0.764   +0.005      0.358      0.312   -0.046
+  Islam               0.769      0.752   -0.017      0.495      0.486   -0.009
+  Jewish              0.815      0.811   -0.004      0.605      0.558   -0.047
+  Men                 0.791      0.809   +0.018      0.163      0.116   -0.047
+  Other               0.777      0.787   +0.010      0.375       0.35   -0.025
+  Refugee             0.737      0.719   -0.018      0.244        0.2   -0.044
+  Women               0.750      0.746   -0.004      0.311      0.274   -0.037
+  none                0.821      0.810   -0.011      0.145      0.145   +0.000
+
+All results saved to ../outputs/predictions/
