@@ -1,14 +1,14 @@
 # Fairness of Early Exiting in Hate Speech Detection
 
-Master's internship, LIRIS / École Centrale de Lyon, ANR DIKé project.
+Master's internship, LIRIS / École Centrale de Lyon.
 Supervisor: Julien Velcin.
 
 ## Data
-HateXplain (Mathew et al., 2021) — not included here.
+HateXplain (Mathew et al., 2021)
 Download `dataset.json` and `post_id_divisions.json` from
 https://github.com/hate-alert/HateXplain/tree/master/Data into `data/`.
 
-## Phase 1 — thesis (submitted August 2026)
+## Phase 1 — thesis
 Fine-tuned BERT, prototype classification, early exiting, per-group fairness.
 
 | Script | Purpose |
