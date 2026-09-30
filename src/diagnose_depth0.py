@@ -29,7 +29,7 @@ for f in files:
     z = np.load(f, allow_pickle=True)
     preds, y, g = z["preds"], z["labels"], z["groups"]
     L = int(z["n_layers"])
-    l = int(round(args.depth * L))
+    l = max(1, int(round(args.depth * L)))
 
     p_l, p_ref = preds[:, l], preds[:, L]
     print("=" * 74)

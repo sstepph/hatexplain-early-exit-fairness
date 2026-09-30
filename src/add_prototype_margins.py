@@ -24,6 +24,7 @@ from train_layer_heads import load_hatexplain, extract_all_layers, DEV
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--data_path", default="../data/dataset.json")
+    ap.add_argument("--divisions", default="../data/post_id_divisions.json")
     ap.add_argument("--model", default="bert-base-cased")
     ap.add_argument("--tag", default="bert-cls")
     ap.add_argument("--seed", type=int, default=0)
@@ -36,7 +37,7 @@ def main():
     old = dict(np.load(path, allow_pickle=True))
     print(f"Loaded {path}")
 
-    train_df, test_df = load_hatexplain(args.data_path, args.seed)
+    train_df, _, test_df = load_hatexplain(args.data_path, args.divisions)
     assert np.array_equal(test_df["label"].values, old["labels"]), \
         "test split does not match the saved file — seed or data differ"
 

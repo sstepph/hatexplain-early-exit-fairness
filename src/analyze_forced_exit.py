@@ -47,7 +47,7 @@ def analyse(path, min_n):
 
     out = []
     for frac in DEPTHS:
-        l = int(round(frac * L))
+        l = max(1, int(round(frac * L)))   # never the embedding layer
         c = (preds[:, l] == y).astype(float)
         sa, sp = {}, {}
         for g in keep:
