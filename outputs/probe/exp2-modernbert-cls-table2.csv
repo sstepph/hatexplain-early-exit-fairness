@@ -1,0 +1,4 @@
+Early exiting,Model,Accuracy,GMB,Significant,Not significant,Max / min dAUC,Expected saving,Avg exit
+Entropy-based 0.376000,BERT,68.36%,65.87%,none,all,"Caucasian -0.029, Homosexual +0.003",20.04%,17.59
+Patience-based 14,BERT,69.98%,67.37%,none,all,"African -0.023, Islam +0.000",20.27%,17.54
+Prototype-based 0.004829,BERT,68.61%,65.38%,none,all,"Refugee -0.033, Women +0.000",19.87%,17.63
