@@ -17,3 +17,9 @@ data/post_id_divisions.json
 outputs/predictions_old/
 outputs/probe_randomsplit/
 src/modernbert_requirements.txt
+outputs/
+data/
+__pycache__/
+*.pyc
+venv/
+venv311/

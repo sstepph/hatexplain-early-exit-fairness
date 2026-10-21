@@ -1,0 +1,6 @@
+depth,accuracy,gmb,significant,not_significant,max_min_dAUC
+0%,69.51%,69.07%,none,all,"Refugee -0.09, Other +0.01"
+25%,69.23%,68.03%,none,all,"Islam -0.05, Refugee +0.00"
+50%,68.38%,68.66%,none,all,"Refugee -0.02, Caucasian -0.00"
+75%,68.78%,66.43%,none,all,"Islam -0.04, Arab +0.00"
+100%,68.17%,65.55%,-,-,reference

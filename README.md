@@ -1,110 +1,135 @@
 # Fairness of Early Exiting in Hate Speech Detection
 
-Master's internship, LIRIS / École Centrale de Lyon.
-Supervisor: Julien Velcin.
+LIRIS / École Centrale de Lyon — Stéphanie Ounanian, supervised by Julien Velcin.
+With Irina Proskurina and Antoine Gourru.
 
-Does early exiting in transformer classifiers cost the same for every
-demographic subgroup? Two experiments on HateXplain: forced exit at fixed
-depths, and dynamic exit under three confidence rules at matched compute.
+**Question:** when a transformer stops early to save computation, does every
+demographic subgroup pay the same price?
 
-## Data
+---
 
-HateXplain (Mathew et al., 2021).
-Download `dataset.json` and `post_id_divisions.json` from
-https://github.com/hate-alert/HateXplain/tree/master/Data into `data/`.
+## Read this first
 
-All experiments use the **official** splits from `post_id_divisions.json`
-(train 17,305 after merging val, test 1,924). The split is fixed; the seed
-affects training only.
-
-## Phase 1 — thesis
-
-Fine-tuned BERT, prototype classification, early exiting, per-group fairness.
-
-| Script | Purpose |
+| If you want to… | Go to |
 |---|---|
-| `model_finetuning.py` | standard fine-tuning, loss at layer 12 |
-| `model_finetuning_alllayer.py` | all-layer fine-tuning, loss at all 12 layers |
-| `hate_prototypes_bert.py` | layer-wise prototypes, early exit, per-group metrics |
-| `check_margins.py` | margin distribution per layer |
-| `run_exp1.sh`, `run_exp2.sh` | controlled reruns after the defence |
+| understand the setup and what each experiment does | [`EXPERIMENTS.md`](EXPERIMENTS.md) |
+| see the results without running anything | [`results/`](results/) |
+| run the pipeline yourself | "Running it" below |
+| look at the old thesis code | [`archive/thesis/`](archive/thesis/) — superseded, kept for reference |
 
-## Phase 2 — current
+**One thing to know before reading any number:** both encoders are **frozen**.
+Nothing is fine-tuned on HateXplain. Only a linear classification head per
+layer is trained. This matters for interpreting every result — see
+[`EXPERIMENTS.md`](EXPERIMENTS.md#why-the-frozen-setup-matters).
 
-**Frozen encoder**, one linear classification head per transformer layer.
-Neither BERT nor ModernBERT is fine-tuned on HateXplain in this phase — only
-the heads are trained. Models: `bert-base-cased` (12 layers) and
-`answerdotai/ModernBERT-base` (22 layers), 3 seeds each.
+---
 
-| Script | Purpose |
+## Setup
+
+| | |
 |---|---|
-| `train_layer_heads.py` | freeze encoder, train one head per layer, cache scores |
-| `analyze_forced_exit.py` | Experiment 1 — forced exit at fixed depths, Table 1 |
-| `add_prototype_margins.py` | add prototype margins to existing `.npz` (no retraining) |
-| `exp2_early_exit.py` | Experiment 2 — entropy, patience, prototype; Table 2 |
-| `stat_tests.py` | McNemar, DeLong, stratified bootstrap, Bonferroni (Exp 1) |
-| `stat_tests_exp2.py` | same tests applied at each example's exit layer (Exp 2) |
-| `compare_pooling.py` | [CLS] vs mean pooling |
-| `diagnose_depth0.py` | diagnostic for the constant layer-0 embedding |
+| Dataset | HateXplain (Mathew et al., 2021), **official** splits |
+| Train / test | 17,305 (val merged in) / **1,924** |
+| Models | `bert-base-cased` (12 layers), `answerdotai/ModernBERT-base` (22 layers) |
+| Encoder | **frozen** — only per-layer linear heads are trained |
+| Seeds | 3 per setting; the seed affects training only, never the split |
+| Subgroups | target groups with at least 30 test posts |
+| Significance | McNemar, DeLong, bootstrap, Bonferroni, α = 0.01 |
 
-`stat_tests.py` is adapted from code provided by Irina Proskurina
-(https://github.com/upunaprosk/hate-prototypes).
+Data is not in the repo. Download `dataset.json` and `post_id_divisions.json`
+from https://github.com/hate-alert/HateXplain/tree/master/Data into `data/`.
+
+---
+
+## Repository layout
+
+```
+src/              the current pipeline — run these
+src/tools/        one-off diagnostics, not part of the pipeline
+archive/thesis/   code from the Master's thesis; superseded, do not run
+results/          committed CSVs and figures — browse without running anything
+data/             not in the repo (see above)
+outputs/          generated locally, gitignored
+```
+
+---
 
 ## Running it
+
+Scores are cached after step 1, so steps 2–6 rerun in seconds without a GPU.
 
 ```bash
 cd src
 
-# 1. train the per-layer heads (3 seeds)
-for s in 0 1 2; do
-  python train_layer_heads.py --seed $s --tag bert-cls
-done
+# 1 — train one linear head per layer on the frozen encoder
+for s in 0 1 2; do python train_layer_heads.py --seed $s --tag bert-cls; done
+for s in 0 1 2; do python train_layer_heads.py --seed $s \
+      --model answerdotai/ModernBERT-base --tag modernbert-cls; done
 
-# ModernBERT
-for s in 0 1 2; do
-  python train_layer_heads.py --seed $s --model answerdotai/ModernBERT-base --tag modernbert
-done
-
-# 2. Experiment 1 — forced exit
+# 2 — Experiment 1: forced exit at fixed depths
 python analyze_forced_exit.py --tag bert-cls
 
-# 3. prototype margins, then Experiment 2
+# 3 — prototype margins (needed by Experiment 2)
 for s in 0 1 2; do python add_prototype_margins.py --tag bert-cls --seed $s; done
+
+# 4 — Experiment 2: dynamic exit at matched compute
 python exp2_early_exit.py --tag bert-cls --saving 0.20
 python exp2_early_exit.py --tag bert-cls --saving 0.50
 
-# 4. significance tests
-python stat_tests.py       --tag bert-cls
-python stat_tests_exp2.py  --tag bert-cls
+# 5 — significance tests
+python stat_tests.py      --tag bert-cls
+python stat_tests_exp2.py --tag bert-cls
+
+# 6 — per-subgroup AUC, distance from the mean, max shortfall
+python subgroup_gap.py --tag bert-cls
+python subgroup_gap.py --tag modernbert-cls
+python plot_maxgap.py  --tag bert-cls            # same figure, no bands
 ```
 
-Scores are cached in `outputs/probe/{tag}-scores-s{seed}.npz`, so steps 2–4
-rerun without touching the GPU.
+Step 1 needs a GPU. Everything after it reads the cached
+`outputs/probe/{tag}-scores-s{seed}.npz` files and runs on CPU.
 
-## Method notes
+---
 
-- The shallowest exit point is transformer layer 1, not the embedding output:
-  `hidden_states[0]` at `[CLS]` is identical for every post and yields a
-  constant prediction (AUC exactly 0.500). See `diagnose_depth0.py`.
-- The baseline in every comparison is the **full-depth** model on the same
-  test posts, so all tests are paired.
-- GMB is the generalised power mean (p = −5) of per-subgroup AUCs
-  (Borkan et al., 2019) — sensitive to the weakest subgroup.
-- Significance at α = 0.01 with Bonferroni correction across settings.
+## Current state of the results
 
-## Known issues
+- Overall performance barely changes until the network is cut very deep.
+  Mid-depth matches full depth in both models.
+- **No fairness effect is statistically significant.** Every Δ GMB in
+  Experiment 1 is significant in 0 of 3 seeds; in Experiment 2 all 18
+  bootstrap intervals contain zero.
+- Patience-based exiting improves accuracy significantly (McNemar) while AUC
+  is unchanged (DeLong) — it shifts decisions across the boundary rather than
+  ranking better.
+- The largest subgroup shortfall per layer is, at almost every layer, within
+  the range produced by randomly shuffled subgroup labels.
 
+Details and interpretation: [`EXPERIMENTS.md`](EXPERIMENTS.md).
+
+---
+
+## Open items
+
+- Mean pooling has not been tested for ModernBERT (`src/tools/compare_pooling.py`).
+- Subgroup list differs between analyses: the GMB numbers used 9 groups, the
+  gap analysis uses 12 (n ≥ 30). To be unified.
 - `stat_tests_exp2.py`: entropy can divide by zero on ModernBERT runs where
-  float32 softmax scores are exactly 0 or 1. Fix is to cast to float64 and
-  clip to `[1e-7, 1 - 1e-7]` before taking logs. Not yet applied.
+  float32 scores are exactly 0 or 1. Fix: cast to float64 and clip to
+  `[1e-7, 1-1e-7]` before the log. Not yet applied.
+- Second dataset not yet added (Measuring Hate Speech is the current candidate).
+
+---
+
+## Credits
+
+`stat_tests.py` is adapted from code provided by Irina Proskurina
+(https://github.com/upunaprosk/hate-prototypes).
 
 ## References
 
-- Mathew et al. (2021), *HateXplain: A Benchmark Dataset for Explainable Hate Speech Detection*
+- Mathew et al. (2021), *HateXplain*
 - Borkan et al. (2019), *Nuanced Metrics for Measuring Unintended Bias*
-- Xin et al. (2020), *DeeBERT* — entropy-based early exiting
-- Zhou et al. (2020), *PABEE* — patience-based early exiting
-- Proskurina, Carpentier & Velcin (2026), *HatePrototypes: Interpretable and
-  Transferable Representations for Implicit and Explicit Hate Speech Detection*,
-  LREC 2026 — prototype-based early exiting
+- Xin et al. (2020), *DeeBERT*
+- Zhou et al. (2020), *PABEE*
+- Proskurina, Carpentier & Velcin (2026), *HatePrototypes*, LREC 2026
   (https://aclanthology.org/2026.lrec-1.343/)
