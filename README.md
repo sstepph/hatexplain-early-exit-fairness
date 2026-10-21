@@ -33,7 +33,7 @@ layer is trained. This matters for interpreting every result — see
 | Models | `bert-base-cased` (12 layers), `answerdotai/ModernBERT-base` (22 layers) |
 | Encoder | **frozen** — only per-layer linear heads are trained |
 | Seeds | 3 per setting; the seed affects training only, never the split |
-| Subgroups | target groups with at least 30 test posts |
+| Subgroups | target groups with at least **50** test posts (9 groups) — same threshold in every script |
 | Significance | McNemar, DeLong, bootstrap, Bonferroni, α = 0.01 |
 
 Data is not in the repo. Download `dataset.json` and `post_id_divisions.json`
@@ -95,14 +95,23 @@ Step 1 needs a GPU. Everything after it reads the cached
 
 - Overall performance barely changes until the network is cut very deep.
   Mid-depth matches full depth in both models.
-- **No fairness effect is statistically significant.** Every Δ GMB in
-  Experiment 1 is significant in 0 of 3 seeds; in Experiment 2 all 18
-  bootstrap intervals contain zero.
-- Patience-based exiting improves accuracy significantly (McNemar) while AUC
-  is unchanged (DeLong) — it shifts decisions across the boundary rather than
-  ranking better.
-- The largest subgroup shortfall per layer is, at almost every layer, within
-  the range produced by randomly shuffled subgroup labels.
+- **No Δ GMB is statistically significant**, in either model, at any depth —
+  0 of 3 seeds in Experiment 1, and all 18 bootstrap intervals contain zero in
+  Experiment 2.
+- Five per-subgroup **accuracy** shifts of 12–17 pp survive Bonferroni
+  correction, all in ModernBERT. None of the corresponding AUC changes are
+  significant.
+- Patience-based exiting improves accuracy significantly (McNemar, 2 of 3
+  seeds) while AUC is unchanged (DeLong, p = 0.20 and 0.46) — it shifts
+  decisions across the boundary rather than ranking better.
+- **Each model has one subgroup consistently at the bottom, and it is a
+  different subgroup in each.** In BERT the largest shortfall is flat across
+  depth (8.6–12.6 pp, clearing the noise reference at 3 of 12 layers), and the
+  worst-placed subgroup is the same one at every layer. In ModernBERT the
+  shortfall grows with depth (9.8 pp at layer 1 to 17.4 pp at layer 22,
+  clearing the reference at 15 of 22 layers).
+- The gap is already present at layer 1 in both models, so it is **not produced
+  by early exiting**.
 
 Details and interpretation: [`EXPERIMENTS.md`](EXPERIMENTS.md).
 
@@ -111,8 +120,6 @@ Details and interpretation: [`EXPERIMENTS.md`](EXPERIMENTS.md).
 ## Open items
 
 - Mean pooling has not been tested for ModernBERT (`src/tools/compare_pooling.py`).
-- Subgroup list differs between analyses: the GMB numbers used 9 groups, the
-  gap analysis uses 12 (n ≥ 30). To be unified.
 - `stat_tests_exp2.py`: entropy can divide by zero on ModernBERT runs where
   float32 scores are exactly 0 or 1. Fix: cast to float64 and clip to
   `[1e-7, 1-1e-7]` before the log. Not yet applied.

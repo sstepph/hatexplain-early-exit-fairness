@@ -95,7 +95,7 @@ example's prediction at its own exit layer before testing.
 
 For every layer:
 
-1. AUC for each subgroup with at least 30 test posts
+1. AUC for each subgroup with at least 50 test posts (9 groups)
 2. the **simple mean** of those subgroup AUCs (not GMB)
 3. for each subgroup, `mean AUC − subgroup AUC` — positive means behind the average
 4. the **max** of (3) — the largest shortfall at that layer
@@ -116,20 +116,27 @@ problem.
 
 ### The noise reference — the important part
 
-The max over 12 subgroups is a **noisy statistic**. Subgroup sizes range from 31
-to 338 posts, so each subgroup AUC carries sampling error, and the largest of
-twelve noisy numbers is large by construction. The smallest subgroups usually
-produce the maximum.
+The max over subgroups is a **noisy statistic**. Subgroup sizes range from 55 to
+338 posts, so each subgroup AUC carries sampling error, and the largest of nine
+noisy numbers is large by construction.
+
+The threshold matters here. An earlier run used n ≥ 30, which added three groups
+of 31–41 posts; those dominated the maximum and pushed the reference band up to
+16–18 pp, hiding everything. At n ≥ 50 — the same threshold `stat_tests.py`
+uses — the band falls to 11–12.5 pp and real gaps become visible.
 
 To quantify this, `subgroup_gap.py` shuffles the subgroup labels at random 300
 times and recomputes the max gap each time. With shuffled labels, subgroup
 membership carries no information, so whatever gap remains is pure chance.
 
-That reference comes out at **16–18 pp**.
+That reference comes out at **11–12.5 pp** at n ≥ 50.
 
 **How to read the figures:** a point inside the grey band is consistent with no
-real subgroup difference. Only points above it are worth interpreting. At
-present, almost every observed point is inside.
+real subgroup difference. Only points above it are worth interpreting.
+
+**Caveat:** the layers are not independent tests — adjacent layers share the same
+posts and nearly the same representations. Counts like "15 of 22 layers" describe
+a pattern, not 15 separate results.
 
 ---
 
@@ -186,22 +193,32 @@ Patience improves accuracy significantly under McNemar in two of three seeds,
 while DeLong on the same rows gives p = 0.20 and 0.46 — accuracy up, ranking
 unchanged.
 
-**Subgroup analysis.** Subgroup AUCs range from roughly 50% to 88%, and that
-spread exists at every layer. Almost all observed max gaps fall inside the
-shuffled-label reference band.
+**Per-subgroup accuracy.** Five shifts of 12–17 pp survive Bonferroni
+correction, all in ModernBERT: African −12.7 pp at 50% depth (seed 0),
+Islam +14.2 pp and Jewish +16.7 pp at 50% (seed 1), Jewish +13.6 pp (seed 1)
+and +13.0 pp (seed 2) at 75%. Every corresponding AUC test fails, so these are
+changes in decisions, not in ranking. No comparable effect survives in BERT.
 
-One pattern stands out: in ModernBERT the Jewish subgroup (n = 162) starts near
-the top at layer 1 and declines steadily to about 18 pp below the mean by layer
-22. A monotone trend across 22 layers is harder to attribute to noise than any
-single-layer spike, since the reference band tests one layer at a time.
+**Subgroup analysis (n ≥ 50).** Each model has one subgroup consistently at the
+bottom, and it is a different subgroup in each.
+
+| | BERT (12 layers) | ModernBERT (22 layers) |
+|---|---|---|
+| Layers above the noise reference | 3 of 12 | 15 of 22 |
+| Worst-placed subgroup | Caucasian, at all 12 layers | Jewish, at 17 of 22 |
+| Max gap | 8.6–12.6 pp, flat with depth | 9.8–17.4 pp, growing with depth |
+| Mean subgroup AUC | 71–73%, stable | 70% → 68%, declining |
+
+Two qualifications. The gap is already present at layer 1 in both models, so it
+is not produced by early exiting — in ModernBERT, exiting earlier means a
+*smaller* gap. And the bootstrap intervals are wide, so the existence of the gap
+is better supported than its size.
 
 ---
 
 ## 8. Known inconsistencies
 
-- **Subgroup list.** The GMB numbers used 9 subgroups; the gap analysis uses 12
-  (every group with n ≥ 30). The "mean AUC" is therefore not the same reference
-  in the two analyses. To be unified.
+- ~~**Subgroup list.**~~ Resolved: every script now uses n ≥ 50 (9 subgroups).
 - **Entropy underflow.** `stat_tests_exp2.py` can divide by zero on ModernBERT
   runs where float32 softmax scores are exactly 0 or 1. Fix identified
   (float64 + clip to `[1e-7, 1-1e-7]`), not yet applied.
