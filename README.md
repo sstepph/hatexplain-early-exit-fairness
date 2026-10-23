@@ -69,6 +69,10 @@ for s in 0 1 2; do python train_layer_heads.py --seed $s \
 # 2 — Experiment 1: forced exit at fixed depths
 python analyze_forced_exit.py --tag bert-cls
 
+# accuracy, F1 and AUC at each depth
+python forced_exit_f1.py --tag bert-cls
+python forced_exit_f1.py --tag modernbert-cls
+
 # 3 — prototype margins (needed by Experiment 2)
 for s in 0 1 2; do python add_prototype_margins.py --tag bert-cls --seed $s; done
 
